@@ -31,25 +31,51 @@ public class WebSocketConfig extends ServerEndpointConfig.Configurator {
         return new ServerEndpointExporter();
     }
 
+    /**
+     * 从 query 或 Sec-WebSocket-Protocol 获取 token，并校验。
+     * 兼容前端 query 传递与子协议传递两种方式。
+     */
+    @Override
     public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response){
-        //获取请求头
-        List<String> list = request.getHeaders().get("Sec-WebSocket-Protocol");
+        String token = null;
 
+        // 1) Query 参数
+        String query = request.getQueryString();
+        if (query != null && query.contains("token=")) {
+            for (String p : query.split("&")) {
+                if (p.startsWith("token=")) {
+                    token = p.substring(6);
+                    try { token = java.net.URLDecoder.decode(token, "UTF-8"); } catch (Exception ignored) {}
+                    break;
+                }
+            }
+        }
 
-        //当Sec-WebSocket-Protocol请求头不为空时,需要返回给前端相同的响应
-        response.getHeaders().put("Sec-WebSocket-Protocol", list);
+        // 2) Sec-WebSocket-Protocol（兼容旧方式）
+        if ((token == null || token.isEmpty())) {
+            List<String> list = request.getHeaders().get("Sec-WebSocket-Protocol");
+            if (list != null && !list.isEmpty()) {
+                token = list.get(0);
+                response.getHeaders().put("Sec-WebSocket-Protocol", list); // echo 回去
+            }
+        }
 
-        /**
-         *获取请求头后的逻辑处理
-         */
-        String token = list.get(0);
-
-        if (token == null) {
+        if (token == null || token.isEmpty()) {
             log.info("token为空");
             throw new JwtVerifyException("token为空");
         }
 
-        Claims claims = JwtUtil.parseJWT("kunar", token);
+        try {
+            JwtProperties jwtProperties = SpringBeanContext.getBean(JwtProperties.class);
+            Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
+            Long id = Long.valueOf(claims.get("USER_ID").toString());
+            log.info("WebSocket连接验证成功，用户id: {}", id);
+            BaseContext.setCurrentId(id);
+        } catch (Exception e) {
+            log.error("WebSocket JWT校验失败: {}", e.getMessage(), e);
+            throw new JwtVerifyException("JWT校验失败");
+        }
+
         super.modifyHandshake(sec, request, response);
     }
 

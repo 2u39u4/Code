@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("chat_history")
+@TableName("chatbot_chat_history")
 public class Chat implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long id;

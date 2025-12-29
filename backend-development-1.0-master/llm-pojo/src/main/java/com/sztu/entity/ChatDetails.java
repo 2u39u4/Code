@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-@TableName("chat_details")
+@TableName("chatbot_chat_details")
 public class ChatDetails implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long id;

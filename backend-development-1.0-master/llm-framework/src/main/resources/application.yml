@@ -6,21 +6,13 @@ spring:
     name: llm-service
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/chatbot?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.1:3307/chatbot?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: root
   redis:
-    host: 127.0.0.1
     port: 6379
-    password: # Redis密码，如果没有密码则留空或删除此行
-    database: 3 # 使用第3号数据库
-    timeout: 3000 # 连接超时时间（毫秒）
-    lettuce:
-      pool:
-        max-active: 8 # 连接池最大连接数
-        max-idle: 8 # 连接池最大空闲连接数
-        min-idle: 0 # 连接池最小空闲连接数
-        max-wait: -1 # 连接池最大阻塞等待时间（-1表示没有限制）
+    host: 127.0.0.1
+    database: 3
 #  jackson:
 #    serialization:
 #      FAIL_ON_EMPTY_BEANS: false
@@ -42,7 +34,22 @@ sztu:
     # 设置jwt过期时间
     admin-ttl: 720000000000
     # 设置前端传递过来的令牌名称
-    admin-token-name: token
+    admin-token-name: TOKEN
+#ai:
+#  service:
+#    type: python   # 当前启用的 AI 服务：python/xfxh/ollama
+#    python:
+#      url: http://localhost:8000
+#      endpoint: /chat/ask
+#      timeout: 30000
+#      enabled: true
+#    xfxh:
+#      enabled: false
+#    ollama:
+#      enabled: false
+#      url: http://localhost:11434
+#      endpoint: /api/generate
+#      timeout: 60000
 xfxh:
   # 服务引擎使用 讯飞星火认知大模型V2.0，如果使用 V1.5 需要将 hostUrl 修改为 https://spark-api.xf-yun.com/v1.1/chat
   hostUrl: https://spark-api.xf-yun.com/v3.5/chat

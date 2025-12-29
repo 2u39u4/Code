@@ -1,48 +1,33 @@
 package com.sztu.websocket;
 
 import com.alibaba.fastjson.JSONArray;
-import java.net.URL;
 import com.sztu.config.WebSocketConfig;
-import java.net.HttpURLConnection;
-import java.io.OutputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.nio.charset.StandardCharsets;
 import com.sztu.context.SpringBeanContext;
 import com.sztu.dto.MsgDto;
-import com.sztu.entity.ChatDetails;
-import com.sztu.listener.XfXhWebSocketListener;
-import com.sztu.model.XfXhStreamClient;
-import com.sztu.properties.XfXhProperties;
-import com.sztu.service.ChatDetailsService;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.WebSocket;
 import org.springframework.stereotype.Component;
-import java.util.*;
+
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.springframework.web.client.RestTemplate;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 @Slf4j
 @Component
 @ServerEndpoint(value = "/websocket/{studentId}/{chatHistoryId}", configurator = WebSocketConfig.class )
 public class MyWebSocket {
 
-    private XfXhStreamClient xfXhStreamClient;
-
-
-
-    private  XfXhProperties xfXhProperties;
-
-    private ChatDetailsService chatDetailsService;
 
     /** 当前在线客户端数量（线程安全的） */
     private static AtomicInteger onlineClientNumber = new AtomicInteger(0);
@@ -54,18 +39,9 @@ public class MyWebSocket {
 
     /**
      * 客户端与服务端连接成功
-     * @param session
-     * @param
      */
     @OnOpen
     public void onOpen(Session session, @PathParam("studentId") String studentId, @PathParam("chatHistoryId") Long chatHistoryId){
-        /*
-            do something for onOpen
-            与当前客户端连接成功时
-         */
-        xfXhStreamClient = SpringBeanContext.getBean(XfXhStreamClient.class);
-        xfXhProperties = SpringBeanContext.getBean(XfXhProperties.class);
-        chatDetailsService = SpringBeanContext.getBean(ChatDetailsService.class);
         onlineClientNumber.incrementAndGet();
         onlineClientMap.put(session.getId(),session);
         log.info("与客户端连接成功");
@@ -126,10 +102,10 @@ public class MyWebSocket {
             payload.put("chatHistoryId", chatHistoryId);
 
             // 将 payload 转成 JSON
-            ObjectMapper mapper = new ObjectMapper();
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
             String jsonPayload = mapper.writeValueAsString(payload);
 
-            // 使用 HttpURLConnection 流式读取
+            // 使用 HttpURLConnection 流式读取（原有实现）
             URL url = new URL("http://localhost:8000/chat/ask");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);

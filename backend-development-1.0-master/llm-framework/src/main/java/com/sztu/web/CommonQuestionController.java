@@ -20,6 +20,10 @@ public class CommonQuestionController {
     @GetMapping
     public Result<List<CommonQuestion>> getCommonQuestion() {
         List<CommonQuestion> list = commonQuestionService.list();
-        return Result.success(list.subList(0, 3));
+        int endIndex = Math.min(list.size(), 3);
+        if (endIndex == 0) {
+            return Result.success(list);
+        }
+        return Result.success(list.subList(0, endIndex));
     }
 }

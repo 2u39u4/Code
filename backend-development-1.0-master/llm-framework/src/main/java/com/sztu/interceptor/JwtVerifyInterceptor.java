@@ -20,6 +20,11 @@ public class JwtVerifyInterceptor implements HandlerInterceptor {
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("开始进行拦截");
+        // 处理预检请求：直接放行，避免 OPTIONS 被拦截返回 401
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return true;
+        }
         // 如果不是当前处理器不是HandlerMethod, 则直接放行
         if (!(handler instanceof HandlerMethod)) {
             return true;
@@ -29,6 +34,8 @@ public class JwtVerifyInterceptor implements HandlerInterceptor {
         if (token == null) {
             log.info("token为空");
             response.setStatus(401);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":0,\"message\":\"未登录或登录已过期\"}");
             return false;
         }
         // 解析token
@@ -41,6 +48,8 @@ public class JwtVerifyInterceptor implements HandlerInterceptor {
         } catch (Exception ex) {
             log.info("jwt校验未通过");
             response.setStatus(401);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":0,\"message\":\"未登录或登录已过期\"}");
             return false;
         }
     }

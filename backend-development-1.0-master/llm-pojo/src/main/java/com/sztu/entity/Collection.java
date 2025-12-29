@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("collection")
+@TableName("chatbot_collection")
 public class Collection {
     @TableField("user_id")
     private Long userId;
