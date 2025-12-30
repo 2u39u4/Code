@@ -4,21 +4,16 @@ import com.alibaba.fastjson.JSONArray;
 import com.sztu.config.WebSocketConfig;
 import com.sztu.context.SpringBeanContext;
 import com.sztu.dto.MsgDto;
+import com.sztu.entity.ChatDetails;
+import com.sztu.listener.XfXhWebSocketListener;
+import com.sztu.model.XfXhStreamClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -91,40 +86,16 @@ public class MyWebSocket {
 
         try {
             List<MsgDto> msgDtoList = JSONArray.parseArray(questions, MsgDto.class);
-            List<Map<String, String>> messages = new ArrayList<>();
-            for (MsgDto msg : msgDtoList) {
-                messages.add(Map.of("role", msg.getRole(), "content", msg.getContent()));
-            }
+            // 使用讯飞星火客户端
+            XfXhStreamClient xfXhStreamClient = SpringBeanContext.getBean(XfXhStreamClient.class);
+            XfXhWebSocketListener listener = new XfXhWebSocketListener();
+            listener.setSession(session);
+            // 可选：保存聊天详情
+            ChatDetails chatDetails = new ChatDetails();
+            chatDetails.setChatHistoryId(chatHistoryId);
+            listener.setChatDetails(chatDetails);
 
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("messages", messages);
-            payload.put("studentId", studentId);
-            payload.put("chatHistoryId", chatHistoryId);
-
-            // 将 payload 转成 JSON
-            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-            String jsonPayload = mapper.writeValueAsString(payload);
-
-            // 使用 HttpURLConnection 流式读取（原有实现）
-            URL url = new URL("http://localhost:8000/chat/ask");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json");
-
-            try (OutputStream os = connection.getOutputStream()) {
-                os.write(jsonPayload.getBytes(StandardCharsets.UTF_8));
-                os.flush();
-            }
-
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    session.getBasicRemote().sendText(line); // 每行作为一次增量推送
-                }
-            }
-            session.getBasicRemote().sendText("DONE");
+            xfXhStreamClient.sendMsg(studentId, msgDtoList, listener);
         } catch (Exception e) {
             log.error("处理消息时出错：", e);
             session.getBasicRemote().sendText("系统错误，请稍后重试。");

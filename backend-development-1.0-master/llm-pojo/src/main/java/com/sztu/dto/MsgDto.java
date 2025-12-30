@@ -1,12 +1,10 @@
 package com.sztu.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MsgDto {
@@ -32,6 +30,12 @@ public class MsgDto {
 
     public static MsgDto createAssistantMsg(String content) {
         return new MsgDto(ROLE_ASSISTANT, content, null);
+    }
+
+    public MsgDto(String role, String content, Integer index) {
+        this.role = role;
+        this.content = content;
+        this.index = index;
     }
 
 }

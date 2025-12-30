@@ -35,21 +35,21 @@ sztu:
     admin-ttl: 720000000000
     # 设置前端传递过来的令牌名称
     admin-token-name: TOKEN
-#ai:
-#  service:
-#    type: python   # 当前启用的 AI 服务：python/xfxh/ollama
-#    python:
-#      url: http://localhost:8000
-#      endpoint: /chat/ask
-#      timeout: 30000
-#      enabled: true
-#    xfxh:
-#      enabled: false
-#    ollama:
-#      enabled: false
-#      url: http://localhost:11434
-#      endpoint: /api/generate
-#      timeout: 60000
+ai:
+  service:
+    type: python   # 当前启用的 AI 服务：python/xfxh/ollama
+    python:
+      url: http://localhost:8000
+      endpoint: /chat/ask
+      timeout: 30000
+      enabled: true
+    xfxh:
+      enabled: false
+    ollama:
+      enabled: false
+      url: http://localhost:11434
+      endpoint: /api/generate
+      timeout: 60000
 xfxh:
   # 服务引擎使用 讯飞星火认知大模型V2.0，如果使用 V1.5 需要将 hostUrl 修改为 https://spark-api.xf-yun.com/v1.1/chat
   hostUrl: https://spark-api.xf-yun.com/v3.5/chat

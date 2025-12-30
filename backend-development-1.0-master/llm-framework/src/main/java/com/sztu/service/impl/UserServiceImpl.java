@@ -14,19 +14,21 @@ import com.sztu.result.Result;
 import com.sztu.service.UserService;
 import com.sztu.utils.JwtUtil;
 import com.sztu.vo.UserVo;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
-@Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+
     @Autowired
     public JwtProperties jwtProperties;
     @Autowired
@@ -67,13 +69,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public Result<?> register(UserRegisterDto userRegisterDto) {
-        User user = User.builder()
-                .studentId(userRegisterDto.getStudentId())
-                .password(encryptPassword(userRegisterDto.getPassword()))
-                .name(userRegisterDto.getName())
-                .createTime(LocalDateTime.now())
-                .updateTime(LocalDateTime.now())
-                .build();
+        User user = new User();
+        user.setStudentId(userRegisterDto.getStudentId());
+        user.setPassword(encryptPassword(userRegisterDto.getPassword()));
+        user.setName(userRegisterDto.getName());
+        user.setCreateTime(LocalDateTime.now());
+        user.setUpdateTime(LocalDateTime.now());
         int inserted = userMapper.insert(user);
         if (0 == inserted) {
             return Result.error("注册失败");
