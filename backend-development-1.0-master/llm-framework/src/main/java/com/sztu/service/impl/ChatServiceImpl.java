@@ -9,11 +9,12 @@ import com.sztu.mapper.ChatMapper;
 import com.sztu.result.Result;
 import com.sztu.service.ChatService;
 import com.sztu.vo.ChatVo;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,8 +23,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Slf4j
 public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements ChatService {
+    private static final Logger log = LoggerFactory.getLogger(ChatServiceImpl.class);
+
     @Autowired
     private ChatMapper chatMapper;
     @Autowired
@@ -70,7 +72,10 @@ public class ChatServiceImpl extends ServiceImpl<ChatMapper, Chat> implements Ch
     @Override
     public void saveChat() {
         Long userId = BaseContext.getCurrentId();
-        Chat chat = new Chat(null, userId, "新建聊天", LocalDateTime.now());
+        Chat chat = new Chat();
+        chat.setUserId(userId);
+        chat.setName("新建聊天");
+        chat.setCreateTime(LocalDateTime.now());
         if (this.save(chat)) {
             log.info("新增聊天成功: {}", chat);
         }

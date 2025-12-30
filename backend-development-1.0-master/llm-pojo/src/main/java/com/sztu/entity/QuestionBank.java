@@ -2,19 +2,11 @@ package com.sztu.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @TableName("chatbot_question_bank")
 public class QuestionBank implements Serializable {
 
@@ -35,4 +27,62 @@ public class QuestionBank implements Serializable {
     @TableField("update_time")
     private LocalDateTime updateTime;
 
+    public QuestionBank() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getQuestionCommon() {
+        return questionCommon;
+    }
+
+    public void setQuestionCommon(String questionCommon) {
+        this.questionCommon = questionCommon;
+    }
+
+    public String getQuestionKnowledge() {
+        return questionKnowledge;
+    }
+
+    public void setQuestionKnowledge(String questionKnowledge) {
+        this.questionKnowledge = questionKnowledge;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
+    }
 }
